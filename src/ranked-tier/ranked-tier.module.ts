@@ -10,12 +10,12 @@ import { MongooseModule } from '@nestjs/mongoose';
       {
         name: RankedTier.name,
         schema: RankedTierSchema,
-        collection: 'rankedTiers',
-      },
-    ]),
+        collection: 'rankedTiers'
+      }
+    ])
   ],
   controllers: [RankedTierController],
   providers: [RankedTierService],
-  exports: [RankedTierService],
+  exports: [RankedTierService]
 })
 export class RankedTierModule {}

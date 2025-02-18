@@ -7,7 +7,7 @@ import { RankedTierModule } from './ranked-tier/ranked-tier.module';
   imports: [
     MongooseModule.forRoot('mongodb://localhost/wr_stats'),
     MatchesModule,
-    RankedTierModule,
-  ],
+    RankedTierModule
+  ]
 })
 export class AppModule {}

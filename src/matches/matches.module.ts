@@ -12,11 +12,11 @@ import { RankedTierModule } from 'src/ranked-tier/ranked-tier.module';
       {
         name: Match.name,
         schema: MatchSchema,
-        collection: 'matches',
-      },
-    ]),
+        collection: 'matches'
+      }
+    ])
   ],
   controllers: [MatchesController],
-  providers: [MatchesService],
+  providers: [MatchesService]
 })
 export class MatchesModule {}

@@ -1,32 +1,32 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema({
-  timestamps: true,
+  timestamps: true
 })
 export class RankedTier {
   @Prop({
     required: true,
-    type: String,
+    type: String
   })
   tierName: string;
   @Prop({
     required: true,
-    type: String,
+    type: String
   })
   tierSeason: string;
   @Prop({
     required: true,
-    type: String,
+    type: String
   })
   tierType: string;
   @Prop({
     required: true,
-    type: Number,
+    type: Number
   })
   minMarks: number;
   @Prop({
     required: true,
-    type: Number,
+    type: Number
   })
   maxMarks: number;
 }

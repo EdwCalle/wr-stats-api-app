@@ -5,7 +5,7 @@ import {
   Body,
   // Patch,
   Param,
-  Delete,
+  Delete
 } from '@nestjs/common';
 import { RankedTierService } from './ranked-tier.service';
 import { ParseObjectIdPipe } from 'src/pipes/parse-object-id/parse-object-id.pipe';
