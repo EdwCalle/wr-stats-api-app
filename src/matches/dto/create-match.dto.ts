@@ -10,7 +10,7 @@ import {
   IsMongoId
 } from 'class-validator';
 
-export class RankedRangeDto {
+export class RangeDto {
   @IsNotEmpty()
   @IsMongoId()
   rankedTierID: string;
@@ -45,6 +45,6 @@ export class CreateMatchDto {
   @IsObject()
   @IsNotEmpty()
   @ValidateNested()
-  @Type(() => RankedRangeDto)
-  rankedRange: RankedRangeDto;
+  @Type(() => RangeDto)
+  range: RangeDto;
 }

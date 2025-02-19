@@ -1,8 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
-@Schema()
-export class RankedRange {
+@Schema({ _id: false })
+export class Range {
   @Prop({
     required: true,
     type: Types.ObjectId,
@@ -39,7 +39,7 @@ export class Match {
   defeats: number;
   @Prop({ required: true, type: String })
   seasonProfileID: string;
-  @Prop({ required: true, type: RankedRange })
-  rankedRange: RankedRange;
+  @Prop({ required: true, type: Range })
+  range: Range;
 }
 export const MatchSchema = SchemaFactory.createForClass(Match);

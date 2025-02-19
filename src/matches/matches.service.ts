@@ -21,7 +21,8 @@ export class MatchesService {
   ) {}
 
   async create(createMatchDto: CreateMatchDto) {
-    const { rankedTierID, divisionLvl, marks } = createMatchDto.rankedRange;
+    const { rankedTierID, divisionLvl, marks } = createMatchDto.range;
+    console.log(createMatchDto);
     try {
       // TO DO
       // add validation seasonProfile exist
