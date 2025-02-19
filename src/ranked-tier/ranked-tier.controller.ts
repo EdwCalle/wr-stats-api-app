@@ -19,7 +19,6 @@ export class RankedTierController {
 
   @Post()
   create(@Body() createRankedTierDto: CreateRankedTierDto) {
-    console.log(createRankedTierDto);
     return this.rankedTierService.create(createRankedTierDto);
   }
 

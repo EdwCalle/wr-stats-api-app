@@ -25,25 +25,24 @@ export class RangeDto {
 }
 
 export class CreateMatchDto {
-  @IsDate()
   @IsNotEmpty()
+  @IsDate()
   @Type(() => Date)
   date: Date;
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   @Min(0)
   victories: number;
-  @IsNumber()
   @IsNotEmpty()
+  @IsNumber()
   @Min(0)
   defeats: number;
+  @IsNotEmpty()
   @IsString()
   @IsMongoId()
-  @IsNotEmpty()
   seasonProfileID: string;
-
-  @IsObject()
   @IsNotEmpty()
+  @IsObject()
   @ValidateNested()
   @Type(() => RangeDto)
   range: RangeDto;

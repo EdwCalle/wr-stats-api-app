@@ -15,12 +15,10 @@ export class RankedTierService {
     @InjectModel(RankedTier.name) private rankedTierModel: Model<RankedTier>
   ) {}
   async create(createRankedTierDto: CreateRankedTierDto) {
-    console.log(createRankedTierDto);
     return await this.rankedTierModel.create(createRankedTierDto);
   }
 
   findAll() {
-    console.log(RankedTier.name);
     return this.rankedTierModel.find();
   }
 

@@ -22,12 +22,11 @@ export class MatchesService {
 
   async create(createMatchDto: CreateMatchDto) {
     const { rankedTierID, divisionLvl, marks } = createMatchDto.range;
-    console.log(createMatchDto);
     try {
       // TO DO
       // add validation seasonProfile exist
       // add validation of: match seasonProfile date  with date
-      // add validation of: match rankedTierID season with seasonProfile seasonID
+      // add validation of: match rankedTierID season with seasonProfile seasonID (not required)
       if (
         await this.rankedTierService.isOnRange(rankedTierID, divisionLvl, marks) //this can throw errors
       ) {
@@ -63,11 +62,31 @@ export class MatchesService {
     return match;
   }
 
-  update(id: string, updateMatchDto: UpdateMatchDto) {
-    return this.matchModel.findByIdAndUpdate(id, updateMatchDto);
+  async update(id: string, updateMatchDto: UpdateMatchDto) {
+    console.log('from update Service: ', updateMatchDto);
+    //TO DO
+    //1. Validate if match exist for updating
+    //2. Validate isSameDate, transform the date and verifies the date is the same from database
+    //3. Validate  isOnRange, this verifies rankedTierID,divisionLvl, marks
+    //4. Validate isSeasonProfile, validate if SeasonProfile exist and date belongs to that season profile
+    //5. createSeasonProfile
+    const match = await this.findOne(id); //this return a match or exception
+    if (this.isSameDate(updateMatchDto.date, match.date))
+      return await this.matchModel.findByIdAndUpdate(id, updateMatchDto);
   }
 
   // remove(id: number) {
   //   return `This action removes a #${id} match`;
   // }
+  private isSameDate(date1: Date, date2: Date) {
+    if (date1.getUTCHours() !== 0)
+      throw new BadRequestException(
+        `The date: ${date1.toISOString()} must have no time`
+      );
+    if (date1.getTime() !== date2.getTime())
+      throw new BadRequestException(
+        `Recived date: ${date1.toISOString()} doesn't match with requested date: ${date2.toISOString()}`
+      );
+    else return true;
+  }
 }
