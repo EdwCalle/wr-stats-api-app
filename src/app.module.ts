@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
-import { MatchesModule } from './matches/matches.module';
+import { MatchesModule } from './modules/matches/matches.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { RankedTierModule } from './ranked-tier/ranked-tier.module';
+import { RankedTierModule } from './modules/ranked-tier/ranked-tier.module';
 
 @Module({
   imports: [

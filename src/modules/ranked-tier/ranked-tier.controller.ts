@@ -8,7 +8,7 @@ import {
   Delete
 } from '@nestjs/common';
 import { RankedTierService } from './ranked-tier.service';
-import { ParseObjectIdPipe } from 'src/pipes/parse-object-id/parse-object-id.pipe';
+import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-id.pipe';
 
 import { CreateRankedTierDto } from './dto/create-ranked-tier.dto';
 // import { UpdateRankedTierDto } from './dto/update-ranked-tier.dto';

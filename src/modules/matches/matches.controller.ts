@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
-import { ParseObjectIdPipe } from 'src/pipes/parse-object-id/parse-object-id.pipe';
+import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-id.pipe';
 
 import { UpdateMatchDto } from './dto/update-match.dto';
 

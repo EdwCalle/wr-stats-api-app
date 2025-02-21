@@ -3,7 +3,7 @@ import { MatchesService } from './matches.service';
 import { MatchesController } from './matches.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Match, MatchSchema } from './schemas/match.schema';
-import { RankedTierModule } from 'src/ranked-tier/ranked-tier.module';
+import { RankedTierModule } from 'src/modules/ranked-tier/ranked-tier.module';
 
 @Module({
   imports: [
