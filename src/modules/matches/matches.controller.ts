@@ -1,9 +1,18 @@
-import { Controller, Get, Post, Body, Param, Patch } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Patch,
+  Delete
+} from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-id.pipe';
 
 import { UpdateMatchDto } from './dto/update-match.dto';
+import { DeleteMatchDto } from './dto/delete-match.dto';
 
 @Controller('matches')
 export class MatchesController {
@@ -32,8 +41,11 @@ export class MatchesController {
     return this.matchesService.update(id, updateMatchDto);
   }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.matchesService.remove(+id);
-  // }
+  @Delete(':id')
+  remove(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @Body() deleteMatchDto: DeleteMatchDto
+  ) {
+    return this.matchesService.remove(id, deleteMatchDto);
+  }
 }

@@ -10,6 +10,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Match } from './schemas/match.schema';
 import { RankedTierService } from 'src/modules/ranked-tier/ranked-tier.service';
+import { DeleteMatchDto } from './dto/delete-match.dto';
 
 @Injectable()
 export class MatchesService {
@@ -46,6 +47,7 @@ export class MatchesService {
   async findOne(id: string) {
     const match = await this.matchModel.findById(id);
     if (!match) throw new NotFoundException(`Match ${id} not found`);
+
     return match;
   }
 
@@ -67,9 +69,12 @@ export class MatchesService {
     return await this.matchModel.findByIdAndUpdate(id, updateMatchDto);
   }
 
-  // remove(id: number) {
-  //   return `This action removes a #${id} match`;
-  // }
+  async remove(id: string, deleteMatchDto: DeleteMatchDto) {
+    const match = await this.findOne(id);
+    this.checkSameDate(deleteMatchDto.date, match.date);
+
+    return await this.matchModel.findByIdAndDelete(id);
+  }
 
   // VALIDATIONS
   private checkSameDate(date1: Date, date2: Date) {
