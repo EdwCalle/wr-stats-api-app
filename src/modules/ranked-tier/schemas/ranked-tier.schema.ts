@@ -21,13 +21,18 @@ export class RankedTier {
   tierType: string;
   @Prop({
     required: true,
-    type: Number
+    type: Number,
+    min: 0
   })
   minMarks: number;
   @Prop({
     required: true,
-    type: Number
+    type: Number,
+    min: 0
   })
   maxMarks: number;
 }
 export const RankedTierSchema = SchemaFactory.createForClass(RankedTier);
+
+// RankedTierSchema.set('toObject', { virtuals: true });
+// RankedTierSchema.set('toJSON', { virtuals: true });

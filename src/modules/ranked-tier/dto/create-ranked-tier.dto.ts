@@ -1,19 +1,19 @@
-import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsEnum, IsIn, IsNotEmpty, IsString, Min } from 'class-validator';
+import { TierSeason, TierType } from '../enums/ranked-tier.enum';
 
 export class CreateRankedTierDto {
   @IsString()
   @IsNotEmpty()
-  'tierName': string;
-  @IsString()
+  tierName: string;
   @IsNotEmpty()
-  'tierSeason': string;
-  @IsString()
+  @IsEnum(TierSeason)
+  @IsIn([TierSeason.CUSTOM])
+  tierSeason: TierSeason;
   @IsNotEmpty()
-  'tierType': string;
-  @IsNumber()
-  @IsNotEmpty()
-  'minMarks': number;
-  @IsNumber()
-  @IsNotEmpty()
-  'maxMarks': number;
+  @IsEnum(TierType)
+  tierType: TierType;
+  @Min(0)
+  minMarks: number;
+  @Min(0)
+  maxMarks: number;
 }
