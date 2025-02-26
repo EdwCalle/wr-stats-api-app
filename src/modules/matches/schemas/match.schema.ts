@@ -6,7 +6,7 @@ export class Range {
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'rankedTiers',
+    ref: 'RankedTier',
     set: (v: string) => new Types.ObjectId(v)
   })
   rankedTierID: Types.ObjectId;
@@ -37,7 +37,12 @@ export class Match {
     type: Number
   })
   defeats: number;
-  @Prop({ required: true, type: String })
+  @Prop({
+    required: true,
+    type: Types.ObjectId,
+    ref: 'SeasonProfile',
+    set: (v: string) => new Types.ObjectId(v)
+  })
   seasonProfileID: string;
   @Prop({ required: true, type: Range })
   range: Range;

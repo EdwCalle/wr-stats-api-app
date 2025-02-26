@@ -21,6 +21,8 @@ export class RankedTierService {
     //TO DO
     //1. validate minMarks and maxMarks must be null if tierType is empty ✅
     //2. validate minmakrs > maxmarks ✅
+    //3. (global) add role field in users ❌
+
     const { tierType, minMarks, maxMarks } = createRankedTierDto;
     this.checkMarks(tierType, minMarks, maxMarks);
     return await this.rankedTierModel.create(createRankedTierDto);

@@ -22,9 +22,11 @@ export class MatchesService {
   async create(createMatchDto: CreateMatchDto) {
     try {
       // TO DO
-      // add validation seasonProfile exist
-      // add validation of: match seasonProfile date  with date
+      // add validation seasonProfile exist ❌
+      // add validation of: match seasonProfile date  with date ❌
       // add validation of: match rankedTierID season with seasonProfile seasonID (not required)
+      // check range ✅
+
       await this.checkRange(createMatchDto.range); //this can throw errors
       return await this.matchModel.create(createMatchDto);
     } catch (error) {
@@ -41,7 +43,9 @@ export class MatchesService {
   }
 
   findAll() {
-    return this.matchModel.find();
+    console.log('match name:', Match.name);
+
+    return this.matchModel.find().populate('range.rankedTierID');
   }
 
   async findOne(id: string) {
@@ -55,12 +59,12 @@ export class MatchesService {
     // console.log('from update Service: ', updateMatchDto);
 
     //TO DO
-    //1. Validate if match exist for updating
-    //2. Validate isSameDate, transform the date and verifies the date is the same from database
-    //3. Validate  isOnRange, this verifies rankedTierID,divisionLvl, marks
+    //1. Validate if match exist for updating ✅
+    //2. Validate isSameDate, transform the date and verifies the date is the same from database ✅
+    //3. Validate  isOnRange, this verifies rankedTierID,divisionLvl, marks ✅
     //4. Validate isSeasonProfile, validate if SeasonProfile exist and date belongs to that season profile,
-    //    and date fits that season
-    //5. createSeasonProfile
+    //    and date fits that season ❌
+
     const match = await this.findOne(id); //this return a match or exception
     this.checkSameDate(updateMatchDto.date, match.date);
     if (updateMatchDto.seasonProfileID)
@@ -89,6 +93,8 @@ export class MatchesService {
   }
 
   private async checkRange(rangeDto: RangeDto) {
+    //TO DO
+    //1. USE populate instead of Service ❌
     const { rankedTierID, divisionLvl, marks } = rangeDto;
     const rankedTier = await this.rankedTierService.findOne(rankedTierID);
     if (rankedTier.tierType === 'mark' && divisionLvl != 0) {

@@ -38,6 +38,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       }`,
       exception instanceof Error ? exception.stack : 'No stack trace available' //Log the stack if it exists
     );
+    console.log(exception);
     httpAdapter.reply(ctx.getResponse(), responseBody, httpStatus);
   }
 }
