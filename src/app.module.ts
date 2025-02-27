@@ -4,6 +4,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { RankedTierModule } from './modules/ranked-tier/ranked-tier.module';
 import { SeasonProfileModule } from './modules/season-profile/season-profile.module';
 import { SeasonsModule } from './modules/seasons/seasons.module';
+import { UsersModule } from './modules/users/users.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -11,7 +13,9 @@ import { SeasonsModule } from './modules/seasons/seasons.module';
     MatchesModule,
     RankedTierModule,
     SeasonProfileModule,
-    SeasonsModule
+    SeasonsModule,
+    UsersModule,
+    AuthModule
   ]
 })
 export class AppModule {}

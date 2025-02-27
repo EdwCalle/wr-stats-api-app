@@ -5,7 +5,8 @@ import {
   Body,
   Param,
   Patch,
-  Delete
+  Delete,
+  UseGuards
 } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
@@ -13,6 +14,7 @@ import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-
 
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { DeleteMatchDto } from './dto/delete-match.dto';
+import { AuthGuard } from '../auth/guard/auth.guard';
 
 @Controller('matches')
 export class MatchesController {
@@ -24,6 +26,7 @@ export class MatchesController {
   }
 
   @Get()
+  @UseGuards(AuthGuard)
   findAll() {
     return this.matchesService.findAll();
   }
