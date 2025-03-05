@@ -15,6 +15,7 @@ import { Season, SeasonSchema } from './schemas/season.schema';
     ])
   ],
   controllers: [SeasonsController],
-  providers: [SeasonsService]
+  providers: [SeasonsService],
+  exports: [SeasonsService]
 })
 export class SeasonsModule {}

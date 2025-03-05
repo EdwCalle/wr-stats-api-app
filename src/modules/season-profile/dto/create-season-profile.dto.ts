@@ -1,4 +1,4 @@
-import { IsMongoId, Max, Min } from 'class-validator';
+import { IsInt, IsMongoId, Max, Min } from 'class-validator';
 
 export class CreateSeasonProfileDto {
   @IsMongoId()
@@ -9,5 +9,6 @@ export class CreateSeasonProfileDto {
   @Max(1)
   winRate: number;
   @Min(0)
+  @IsInt()
   totalMatches: number;
 }

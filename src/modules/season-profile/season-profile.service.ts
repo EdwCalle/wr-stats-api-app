@@ -1,54 +1,78 @@
 import {
   ConflictException,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  UnauthorizedException
 } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model, Types } from 'mongoose';
 import { CreateSeasonProfileDto } from './dto/create-season-profile.dto';
 import { UpdateSeasonProfileDto } from './dto/update-season-profile.dto';
-import { Model } from 'mongoose';
 import { SeasonProfile } from './schemas/season-profile.schema';
-import { InjectModel } from '@nestjs/mongoose';
+import { UsersService } from '../users/users.service';
+import { SeasonsService } from '../seasons/seasons.service';
+import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
+import { Role } from 'src/utils/enums/role.enum';
 
 @Injectable()
 export class SeasonProfileService {
   constructor(
     @InjectModel(SeasonProfile.name)
-    private seasonProfileModel: Model<SeasonProfile>
+    private readonly seasonProfileModel: Model<SeasonProfile>,
+    private readonly usersService: UsersService,
+    private readonly seasonsService: SeasonsService
   ) {}
-  async create(createSeasonProfileDto: CreateSeasonProfileDto) {
+  async create(
+    createSeasonProfileDto: CreateSeasonProfileDto,
+    currentUserID: CurrentUserI
+  ) {
     //TO DO
-    //1. checkUser ❌
-    //2. checkSeason ❌
+    //1. checkUser ✅
+    //2. checkSeason ✅
     //3. disable 'any' conflict in errors ❌
+    const { userID, seasonID } = createSeasonProfileDto;
+    await this.checkUserFK(userID);
+    await this.checkOwnership(userID, currentUserID);
+    await this.checkSeason(seasonID);
     try {
       return await this.seasonProfileModel.create(createSeasonProfileDto);
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (error.code === 1100) {
-        throw new ConflictException('UserID and SeasonID are repeated');
-      }
+      if (error.code === 11000)
+        throw new ConflictException(
+          'Error userID/seasonID compound duplicated index'
+        );
       throw error;
     }
   }
 
-  async findAll() {
-    return await this.seasonProfileModel.find();
+  async findAll(currentUserI: CurrentUserI) {
+    if (currentUserI.role === Role.ADMIN) {
+      return await this.seasonProfileModel.find();
+    }
+    return await this.seasonProfileModel.find({
+      userID: new Types.ObjectId(currentUserI.uid)
+    });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, currentUserID: CurrentUserI) {
     const seasonProfile = await this.seasonProfileModel.findById(id);
     if (!seasonProfile)
       throw new NotFoundException(`Season Profile with id '${id}' not found`);
+    await this.checkOwnership(seasonProfile.userID.toString(), currentUserID);
     return seasonProfile;
   }
 
-  async update(id: string, updateSeasonProfileDto: UpdateSeasonProfileDto) {
+  async update(
+    id: string,
+    updateSeasonProfileDto: UpdateSeasonProfileDto,
+    currentUserI: CurrentUserI
+  ) {
     //TO DO
-    //1. check user && check season compound are the same from id (its like it the 2 are one id) dont update this values ❌
     //3. (global) set conventions rules for future updates ❌
     //4. (global) UNIT testing in required scripts files ❌
+    await this.findOne(id, currentUserI);
     try {
-      await this.findOne(id);
       return await this.seasonProfileModel.findByIdAndUpdate(
         id,
         updateSeasonProfileDto
@@ -64,29 +88,52 @@ export class SeasonProfileService {
     }
   }
 
-  async remove(id: string) {
+  async remove(id: string, currentUserI: CurrentUserI) {
     //TO DO
     //1. check if exist seasonProfile ✅
-    //2. check if used, then not to delete,else continue ❌
-    await this.findOne(id);
+    //2. check if used, then not to delete,else continue ✅
+    await this.findOne(id, currentUserI);
     await this.onDeleteConstraintKey(id);
     return await this.seasonProfileModel.findByIdAndDelete(id);
   }
   //Validations
-  private async checkUser() {}
-  private async checkSeason() {}
+  // check the current user if still exists
+  private async checkOwnership(userID: string, currentUserI: CurrentUserI) {
+    const user = await this.usersService.findOne(currentUserI.uid);
+    if (!user)
+      throw new NotFoundException(
+        `Current User with id '${currentUserI.uid}' not found`
+      );
+    if (currentUserI.role === Role.USER && userID !== currentUserI.uid) {
+      throw new UnauthorizedException(
+        'Season Profile Resource not allowed for this user'
+      );
+    }
+  }
+  //TO DO
+  //1. in (Users) when delete an user, check if the users extis ❌
+  // this check if the seasonProfile.exsits, then check if current exists, is the sama from seasonProfile.userID and currentUserID is admin
+  private async checkUserFK(userID: string) {
+    const userFK = await this.usersService.findOne(userID);
+    if (!userFK)
+      throw new NotFoundException(
+        `User from seasonProfile with id '${userID}' not found`
+      );
+    // await this.checkOwnership(userID, currentUserID);
+  }
+  private async checkSeason(seasonID: string) {
+    await this.seasonsService.findOne(seasonID);
+  }
   //constraints keys
   private async onDeleteConstraintKey(id: string) {
     //TO DO
-    // fix any problem
+    // fix any problem ❌
     const seasonProfile: any = await this.seasonProfileModel
       .findById(id)
       .populate('matches')
       .exec();
-    console.log(seasonProfile);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (seasonProfile.matches) {
+    if (seasonProfile.matches)
       throw new ConflictException('SeasonProfile already in use');
-    }
   }
 }

@@ -6,9 +6,13 @@ import {
   SeasonProfile,
   SeasonProfileSchema
 } from './schemas/season-profile.schema';
+import { UsersModule } from '../users/users.module';
+import { SeasonsModule } from '../seasons/seasons.module';
 
 @Module({
   imports: [
+    UsersModule,
+    SeasonsModule,
     MongooseModule.forFeature([
       {
         name: SeasonProfile.name,
