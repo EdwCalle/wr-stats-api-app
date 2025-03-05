@@ -6,10 +6,17 @@ import { SeasonProfileModule } from './modules/season-profile/season-profile.mod
 import { SeasonsModule } from './modules/seasons/seasons.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
-
+import { ConfigModule, ConfigService } from '@nestjs/config';
 @Module({
   imports: [
-    MongooseModule.forRoot('mongodb://localhost/wr_stats'),
+    ConfigModule.forRoot({ envFilePath: '.env' }),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        uri: configService.get<string>('MONGO_DB_URI')
+      }),
+      inject: [ConfigService]
+    }),
     MatchesModule,
     RankedTierModule,
     SeasonProfileModule,
