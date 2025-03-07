@@ -12,19 +12,22 @@ import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-
 
 import { CreateRankedTierDto } from './dto/create-ranked-tier.dto';
 import { UpdateRankedTierDto } from './dto/update-ranked-tier.dto';
-
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Role } from 'src/utils/enums/role.enum';
+@Auth(Role.ADMIN, Role.USER)
 @Controller('ranked-tier')
 export class RankedTierController {
   constructor(private readonly rankedTierService: RankedTierService) {}
-
+  //TO DO
+  //1. add permission  to create, update and delete rankedTier just for admin ❌
   @Post()
-  create(@Body() createRankedTierDto: CreateRankedTierDto) {
-    return this.rankedTierService.create(createRankedTierDto);
+  async create(@Body() createRankedTierDto: CreateRankedTierDto) {
+    return await this.rankedTierService.create(createRankedTierDto);
   }
 
   @Get()
-  findAll() {
-    return this.rankedTierService.findAll();
+  async findAll() {
+    return await this.rankedTierService.findAll();
   }
 
   @Get(':id')
@@ -33,15 +36,15 @@ export class RankedTierController {
   }
 
   @Patch(':id')
-  update(
+  async update(
     @Param('id', ParseObjectIdPipe) id: string,
     @Body() updateRankedTierDto: UpdateRankedTierDto
   ) {
-    return this.rankedTierService.update(id, updateRankedTierDto);
+    return await this.rankedTierService.update(id, updateRankedTierDto);
   }
 
   @Delete(':id')
-  remove(@Param('id', ParseObjectIdPipe) id: string) {
-    return this.rankedTierService.remove(id);
+  async remove(@Param('id', ParseObjectIdPipe) id: string) {
+    return await this.rankedTierService.remove(id);
   }
 }

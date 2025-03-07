@@ -62,7 +62,7 @@ export class SeasonsService {
     return await this.seasonModel.findByIdAndDelete(id);
   }
 
-  //VALIDATIONS
+  //Local validations
   private checkDate(startDate: Date, finishDate: Date | null) {
     if (finishDate && startDate.getTime() >= finishDate.getTime())
       throw new BadRequestException(
@@ -82,8 +82,8 @@ export class SeasonsService {
       throw new ConflictException('Season already in use');
     }
   }
-  async checkRangeDate(date: Date, seasonID: string) {
-    const season = await this.findOne(seasonID);
+  // CUSTOM fK Encapsulation for seasonProfile
+  checkSeasonDate(date: Date, season: Season) {
     const { startDate, finishDate } = season;
     const dateTimestamp = date.getTime();
     const startTimestamp = startDate.getTime();

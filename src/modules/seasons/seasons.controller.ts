@@ -11,7 +11,9 @@ import { SeasonsService } from './seasons.service';
 import { CreateSeasonDto } from './dto/create-season.dto';
 import { UpdateSeasonDto } from './dto/update-season.dto';
 import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-id.pipe';
-
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Role } from 'src/utils/enums/role.enum';
+@Auth(Role.ADMIN, Role.USER)
 @Controller('seasons')
 export class SeasonsController {
   constructor(private readonly seasonsService: SeasonsService) {}

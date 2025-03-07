@@ -28,6 +28,7 @@ export class SeasonProfileController {
   ) {
     //TO DO
     //1. (global) make all controllers async func ❌
+
     return await this.seasonProfileService.create(
       createSeasonProfileDto,
       currentUserI

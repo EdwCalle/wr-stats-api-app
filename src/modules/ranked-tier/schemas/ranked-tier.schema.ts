@@ -34,5 +34,11 @@ export class RankedTier {
 }
 export const RankedTierSchema = SchemaFactory.createForClass(RankedTier);
 
-// RankedTierSchema.set('toObject', { virtuals: true });
-// RankedTierSchema.set('toJSON', { virtuals: true });
+RankedTierSchema.virtual('matches', {
+  ref: 'Match', // The model to use
+  localField: '_id', // Find people where `localField`
+  foreignField: 'range.rankedTierID', // is equal to `foreignField`
+  justOne: true
+});
+RankedTierSchema.set('toObject', { virtuals: true });
+RankedTierSchema.set('toJSON', { virtuals: true });

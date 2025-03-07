@@ -6,7 +6,7 @@ import { Model } from 'mongoose';
 
 @Injectable()
 //TO DO
-//1. implement admin services(create,update,delete) users ⚠️
+//1. implement admin services(create,update,delete) users ❌
 export class UsersService {
   constructor(
     @InjectModel(User.name) private readonly userModel: Model<UserDocument>

@@ -19,7 +19,7 @@ import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
 import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Role } from 'src/utils/enums/role.enum';
-import { MatchQueryDTO as MatchQueryDTO } from './dto/match-query.dto';
+import { MatchQueryDTO } from './dto/match-query.dto';
 @Auth(Role.ADMIN, Role.USER)
 @Controller('matches')
 export class MatchesController {
@@ -63,11 +63,11 @@ export class MatchesController {
   }
 
   @Delete(':id')
-  remove(
+  async remove(
     @Param('id', ParseObjectIdPipe) id: string,
     @Query() matchQueryDTO: MatchQueryDTO,
-    currentUserI: CurrentUserI
+    @CurrentUser() currentUserI: CurrentUserI
   ) {
-    return this.matchesService.remove(id, matchQueryDTO, currentUserI);
+    return await this.matchesService.remove(id, matchQueryDTO, currentUserI);
   }
 }

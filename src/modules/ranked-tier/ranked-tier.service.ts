@@ -7,7 +7,7 @@ import {
 import { CreateRankedTierDto } from './dto/create-ranked-tier.dto';
 import { UpdateRankedTierDto } from './dto/update-ranked-tier.dto';
 import { RankedTier } from './schemas/ranked-tier.schema';
-import { Model, Types } from 'mongoose';
+import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TierType } from './enums/ranked-tier.enum';
 import { isOutRange } from 'src/utils/validators/data.validator';
@@ -17,13 +17,9 @@ export class RankedTierService {
     @InjectModel(RankedTier.name) private rankedTierModel: Model<RankedTier>
   ) {}
   async create(createRankedTierDto: CreateRankedTierDto) {
-    console.log('test', createRankedTierDto);
-    console.log('test', typeof createRankedTierDto.tierSeason);
-
     //TO DO
     //1. validate minMarks and maxMarks must be null if tierType is empty ✅
     //2. validate minmakrs > maxmarks ✅
-    //3. (global) add role field in users ❌
 
     const { tierType, minMarks, maxMarks } = createRankedTierDto;
     this.checkMarks(tierType, minMarks, maxMarks);
@@ -43,8 +39,9 @@ export class RankedTierService {
 
   async update(id: string, updateRankedTierDto: UpdateRankedTierDto) {
     //TO DO
-    // In database revalidate onRange aggregation in Matches ❌
-    //1. checkMarks if tiertyoe, minmarks, and maxMarks change ✅
+    // In (database) revalidate onRange aggregation in Matches ❌
+    //1. checkMarks if tiertype, minmarks, and maxMarks change ✅
+    // optimize check constraint and findOne ❌
 
     const oldRankedTier = await this.findOne(id);
     let { tierType, minMarks, maxMarks } = oldRankedTier;
@@ -59,6 +56,7 @@ export class RankedTierService {
     maxMarks = newMaxMarks !== undefined ? newMaxMarks : maxMarks;
 
     this.checkMarks(tierType as TierType, minMarks, maxMarks);
+    await this.checkConstraintKey(id);
     return await this.rankedTierModel.findByIdAndUpdate(
       id,
       updateRankedTierDto
@@ -72,7 +70,7 @@ export class RankedTierService {
     await this.checkConstraintKey(id);
     return await this.rankedTierModel.findByIdAndDelete(id);
   }
-  //VALIDATIONS
+  //Local Validations
   private checkMarks(tierType: TierType, minMarks: number, maxMarks: number) {
     if (tierType === TierType.EMPTY && (minMarks !== 0 || maxMarks !== 0)) {
       throw new ConflictException(
@@ -87,30 +85,17 @@ export class RankedTierService {
   }
   //Referenced Local key as FK
   private async checkConstraintKey(id: string) {
-    const rankedTiers: any[] = await this.rankedTierModel
-      .aggregate([
-        {
-          $match: {
-            _id: new Types.ObjectId(id)
-          }
-        },
-        {
-          $lookup: {
-            as: 'matchesfk',
-            from: 'matches',
-            foreignField: 'range.rankedTierID',
-            localField: '_id'
-          }
-        }
-      ])
-      .exec();
     //TO DO
-    //fix any in aggregate ❌
+    // fix any problem ❌
+    const rankedTier: any = await this.rankedTierModel
+      .findById(id)
+      .populate('matches')
+      .exec();
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (rankedTiers[0].matchesfk.length > 0)
-      throw new ConflictException(`This rankedTier ${id} is already in use`);
+    if (rankedTier.matches)
+      throw new ConflictException('SeasonProfile already in use');
   }
-  // custm validation injection
+  // custom fk validation from matchs
   checkRange(divisionLvl: number, marks: number, rankedTier: RankedTier) {
     if (rankedTier.tierType === 'mark' && divisionLvl != 0) {
       throw new BadRequestException(

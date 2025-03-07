@@ -36,7 +36,7 @@ export class SeasonProfileService {
     const { userID, seasonID } = createSeasonProfileDto;
     await this.checkUserFK(userID);
     await this.checkOwnership(userID, currentUserID);
-    await this.checkSeason(seasonID);
+    await this.checkSeasonFK(seasonID);
     try {
       const model = new this.seasonProfileModel(createSeasonProfileDto);
       console.log(' am model', model);
@@ -117,7 +117,7 @@ export class SeasonProfileService {
   }
   //TO DO
   //1. in (Users) when delete an user, check if the users extis ❌
-  // this check if the seasonProfile.exsits, then check if current exists, is the sama from seasonProfile.userID and currentUserID is admin
+  //FK
   private async checkUserFK(userID: string) {
     const userFK = await this.usersService.findOne(userID);
     if (!userFK)
@@ -126,10 +126,15 @@ export class SeasonProfileService {
       );
     // await this.checkOwnership(userID, currentUserID);
   }
-  private async checkSeason(seasonID: string) {
-    await this.seasonsService.findOne(seasonID);
+  private async checkSeasonFK(seasonID: string) {
+    return await this.seasonsService.findOne(seasonID);
   }
-  //constraints keys
+  // CUSTOM fK Encapsulation for matches
+  async checkSeasonDate(date: Date, seasonProfile: SeasonProfile) {
+    const season = await this.checkSeasonFK(seasonProfile.seasonID.toString());
+    this.seasonsService.checkSeasonDate(date, season);
+  }
+  //constraints keys (one to many)
   private async onDeleteConstraintKey(id: string) {
     //TO DO
     // fix any problem ❌
@@ -141,10 +146,5 @@ export class SeasonProfileService {
     if (seasonProfile.matches)
       throw new ConflictException('SeasonProfile already in use');
   }
-  //TO DO
-  // add fk setup ❌
-  async checkSeasonDate(date: Date, seasonProfile: SeasonProfile) {
-    const { seasonID } = seasonProfile;
-    await this.seasonsService.checkRangeDate(date, seasonID.toString());
-  }
 }
+//67b90ccf35da6bad5bb5900f

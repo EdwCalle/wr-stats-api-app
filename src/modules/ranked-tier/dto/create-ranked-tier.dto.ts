@@ -6,7 +6,7 @@ export class CreateRankedTierDto {
   @IsNotEmpty()
   tierName: string;
   @IsNotEmpty()
-  @IsEnum(TierSeason)
+  // @IsEnum(TierSeason)
   @IsIn([TierSeason.CUSTOM])
   tierSeason: TierSeason;
   @IsNotEmpty()
