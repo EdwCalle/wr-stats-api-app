@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
+export type MatchDocument = Match & Document;
 @Schema({ _id: false })
 export class Range {
   @Prop({
@@ -16,15 +17,13 @@ export class Range {
   marks: number;
 }
 @Schema({
-  timestamps: true,
-  versionKey: false
+  timestamps: true
 })
 export class Match {
   @Prop({
     unique: true,
     required: true,
-    type: Date,
-    set: (v: Date) => v.setUTCHours(0, 0, 0, 0)
+    type: Date
   })
   date: Date;
   @Prop({

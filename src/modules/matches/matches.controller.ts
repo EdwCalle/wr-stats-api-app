@@ -6,49 +6,68 @@ import {
   Param,
   Patch,
   Delete,
-  UseGuards
+  UseGuards,
+  Query
 } from '@nestjs/common';
 import { MatchesService } from './matches.service';
 import { CreateMatchDto } from './dto/create-match.dto';
 import { ParseObjectIdPipe } from 'src/utils/pipes/parse-object-id/parse-object-id.pipe';
 
 import { UpdateMatchDto } from './dto/update-match.dto';
-import { DeleteMatchDto } from './dto/delete-match.dto';
 import { AuthGuard } from '../auth/guard/auth.guard';
-
+import { CurrentUser } from 'src/utils/decorators/current-user.decorator';
+import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
+import { Auth } from '../auth/decorators/auth.decorator';
+import { Role } from 'src/utils/enums/role.enum';
+import { MatchQueryDTO as MatchQueryDTO } from './dto/match-query.dto';
+@Auth(Role.ADMIN, Role.USER)
 @Controller('matches')
 export class MatchesController {
   constructor(private readonly matchesService: MatchesService) {}
 
   @Post()
-  async create(@Body() createMatchDto: CreateMatchDto) {
-    return await this.matchesService.create(createMatchDto);
+  async create(
+    @Body() createMatchDto: CreateMatchDto,
+    @CurrentUser() currentUserI: CurrentUserI
+  ) {
+    return await this.matchesService.create(createMatchDto, currentUserI);
   }
 
   @Get()
   @UseGuards(AuthGuard)
-  findAll() {
-    return this.matchesService.findAll();
+  async findAll(@CurrentUser() currentUserI: CurrentUserI) {
+    return await this.matchesService.findAll(currentUserI);
   }
 
   @Get(':id')
-  async findOne(@Param('id', ParseObjectIdPipe) id: string) {
-    return await this.matchesService.findOne(id);
+  async findOne(
+    @Param('id', ParseObjectIdPipe) id: string,
+    @CurrentUser() currentUserI: CurrentUserI
+  ) {
+    return await this.matchesService.findOne(id, currentUserI);
   }
 
   @Patch(':id')
   update(
     @Param('id', ParseObjectIdPipe) id: string,
-    @Body() updateMatchDto: UpdateMatchDto
+    @Query() matchQueryDTO: MatchQueryDTO,
+    @Body() updateMatchDto: UpdateMatchDto,
+    @CurrentUser() currentUserI: CurrentUserI
   ) {
-    return this.matchesService.update(id, updateMatchDto);
+    return this.matchesService.update(
+      id,
+      matchQueryDTO,
+      updateMatchDto,
+      currentUserI
+    );
   }
 
   @Delete(':id')
   remove(
     @Param('id', ParseObjectIdPipe) id: string,
-    @Body() deleteMatchDto: DeleteMatchDto
+    @Query() matchQueryDTO: MatchQueryDTO,
+    currentUserI: CurrentUserI
   ) {
-    return this.matchesService.remove(id, deleteMatchDto);
+    return this.matchesService.remove(id, matchQueryDTO, currentUserI);
   }
 }

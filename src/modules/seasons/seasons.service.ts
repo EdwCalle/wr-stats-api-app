@@ -9,6 +9,7 @@ import { UpdateSeasonDto } from './dto/update-season.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Season } from './schemas/season.schema';
 import { Model } from 'mongoose';
+import { isOutRange } from 'src/utils/validators/data.validator';
 
 @Injectable()
 export class SeasonsService {
@@ -30,7 +31,7 @@ export class SeasonsService {
     const season = await this.seasonModel.findById(id);
     if (!season)
       throw new NotFoundException(`Season with id '${id}' not found`);
-    else return season;
+    return season;
   }
 
   async update(id: string, updateSeasonDto: UpdateSeasonDto) {
@@ -79,6 +80,18 @@ export class SeasonsService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (season.seasonProfile) {
       throw new ConflictException('Season already in use');
+    }
+  }
+  async checkRangeDate(date: Date, seasonID: string) {
+    const season = await this.findOne(seasonID);
+    const { startDate, finishDate } = season;
+    const dateTimestamp = date.getTime();
+    const startTimestamp = startDate.getTime();
+    const finishTimestamp = finishDate ? finishDate.getTime() : dateTimestamp;
+    if (isOutRange(dateTimestamp, startTimestamp, finishTimestamp)) {
+      throw new BadRequestException(
+        `Date ${date.toISOString()} is out of range for the season ${season.seasonName}: ${startDate.toISOString()} - ${finishDate?.toISOString()}`
+      );
     }
   }
 }

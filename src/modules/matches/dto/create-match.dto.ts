@@ -1,4 +1,4 @@
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import {
   IsString,
   IsDate,
@@ -28,6 +28,11 @@ export class CreateMatchDto {
   @IsNotEmpty()
   @IsDate()
   @Type(() => Date)
+  @Transform(({ value }: { value: string | number | Date }) => {
+    const date = new Date(value);
+    date.setUTCHours(0);
+    return date;
+  })
   date: Date;
   @IsNotEmpty()
   @IsNumber()

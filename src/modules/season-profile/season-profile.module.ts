@@ -22,6 +22,7 @@ import { SeasonsModule } from '../seasons/seasons.module';
     ])
   ],
   controllers: [SeasonProfileController],
-  providers: [SeasonProfileService]
+  providers: [SeasonProfileService],
+  exports: [SeasonProfileService]
 })
 export class SeasonProfileModule {}

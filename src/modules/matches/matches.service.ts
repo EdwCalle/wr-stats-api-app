@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException
@@ -8,26 +7,31 @@ import { CreateMatchDto, RangeDto } from './dto/create-match.dto';
 import { UpdateMatchDto } from './dto/update-match.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { Match } from './schemas/match.schema';
+import { Match, MatchDocument } from './schemas/match.schema';
 import { RankedTierService } from 'src/modules/ranked-tier/ranked-tier.service';
-import { DeleteMatchDto } from './dto/delete-match.dto';
+import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
+import { Role } from 'src/utils/enums/role.enum';
+import { SeasonProfileService } from '../season-profile/season-profile.service';
+import { MatchQueryDTO } from './dto/match-query.dto';
 
 @Injectable()
 export class MatchesService {
   constructor(
-    @InjectModel(Match.name) private matchModel: Model<Match>,
-    private readonly rankedTierService: RankedTierService
+    @InjectModel(Match.name) private matchModel: Model<MatchDocument>,
+    private readonly rankedTierService: RankedTierService,
+    private readonly seasonProfileService: SeasonProfileService
   ) {}
 
-  async create(createMatchDto: CreateMatchDto) {
+  async create(createMatchDto: CreateMatchDto, currentUserI: CurrentUserI) {
     try {
       // TO DO
-      // add validation seasonProfile exist ❌
-      // add validation of: match seasonProfile date  with date ❌
-      // add validation of: match rankedTierID season with seasonProfile seasonID (not required)
+      // check seasonProfile FK ✅
+      //  check seasonDate✅
+      // check rankedTier FK ✅
       // check range ✅
-
-      await this.checkRange(createMatchDto.range); //this can throw errors
+      const { seasonProfileID, range, date } = createMatchDto;
+      await this.checkSeasonDate(seasonProfileID, date, currentUserI);
+      await this.checkRange(range);
       return await this.matchModel.create(createMatchDto);
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -42,90 +46,97 @@ export class MatchesService {
     }
   }
 
-  findAll() {
-    console.log('match name:', Match.name);
-
-    return this.matchModel.find().populate('range.rankedTierID');
+  async findAll(currentUserI: CurrentUserI) {
+    if (currentUserI.role === Role.ADMIN) {
+      return this.matchModel.find();
+    }
+    const seasonProfiles =
+      await this.seasonProfileService.findAll(currentUserI);
+    const seasonProfilesID = seasonProfiles.map((sp) => sp._id);
+    return this.matchModel.find({ seasonProfileID: { $in: seasonProfilesID } });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string, currentUserI: CurrentUserI) {
     const match = await this.matchModel.findById(id);
     if (!match) throw new NotFoundException(`Match ${id} not found`);
-
+    await this.seasonProfileService.findOne(
+      match.seasonProfileID,
+      currentUserI
+    );
+    return match;
+  }
+  async findOneByDate(_id: string, date: Date, currentUserI: CurrentUserI) {
+    const match = await this.matchModel.findOne({ _id, date });
+    if (!match)
+      throw new NotFoundException(
+        `Match ${_id} not found with date ${date.toISOString()}`
+      );
+    await this.seasonProfileService.findOne(
+      match.seasonProfileID,
+      currentUserI
+    );
     return match;
   }
 
-  async update(id: string, updateMatchDto: UpdateMatchDto) {
-    // console.log('from update Service: ', updateMatchDto);
-
+  async update(
+    id: string,
+    matchQueryDTO: MatchQueryDTO,
+    updateMatchDto: UpdateMatchDto,
+    currentUserI: CurrentUserI
+  ) {
     //TO DO
-    //1. Validate if match exist for updating ✅
-    //2. Validate isSameDate, transform the date and verifies the date is the same from database ✅
-    //3. Validate  isOnRange, this verifies rankedTierID,divisionLvl, marks ✅
-    //4. Validate isSeasonProfile, validate if SeasonProfile exist and date belongs to that season profile,
-    //    and date fits that season ❌
+    //1. check match and check same date ✅
+    //2. check Range and check fk sesonProfileID ✅
+    //3. check seasonDate, and check rankedTierID ✅
+    //4. optimze ownership from : findOnebyDate and checkSeasonDate ❌
 
-    const match = await this.findOne(id); //this return a match or exception
-    this.checkSameDate(updateMatchDto.date, match.date);
-    if (updateMatchDto.seasonProfileID)
-      await this.checkSeasonProfile(updateMatchDto.seasonProfileID);
+    console.log('from update query dto: ', matchQueryDTO);
+    const { date } = matchQueryDTO;
+    await this.findOneByDate(id, date, currentUserI);
     if (updateMatchDto.range) await this.checkRange(updateMatchDto.range);
+    if (updateMatchDto.seasonProfileID)
+      await this.checkSeasonDate(
+        updateMatchDto.seasonProfileID,
+        date,
+        currentUserI
+      );
     return await this.matchModel.findByIdAndUpdate(id, updateMatchDto);
   }
 
-  async remove(id: string, deleteMatchDto: DeleteMatchDto) {
-    const match = await this.findOne(id);
-    this.checkSameDate(deleteMatchDto.date, match.date);
-
+  async remove(
+    id: string,
+    matchQueryDTO: MatchQueryDTO,
+    currentUserI: CurrentUserI
+  ) {
+    //TO DO
+    //1. check match and check same date ✅
+    await this.findOneByDate(id, matchQueryDTO.date, currentUserI);
     return await this.matchModel.findByIdAndDelete(id);
   }
 
   // VALIDATIONS
-  private checkSameDate(date1: Date, date2: Date) {
-    if (date1.getUTCHours() !== 0)
-      throw new BadRequestException(
-        `The date: ${date1.toISOString()} must have no time`
-      );
-    if (date1.getTime() !== date2.getTime())
-      throw new BadRequestException(
-        `Recived date: ${date1.toISOString()} doesn't match with requested date: ${date2.toISOString()}`
-      );
+  //FK (IN sql db this is not nesesary)
+  private async seasonProfileFk(fk: string, currentUserI: CurrentUserI) {
+    return await this.seasonProfileService.findOne(fk, currentUserI);
   }
-
-  private async checkRange(rangeDto: RangeDto) {
-    //TO DO
-    //1. USE populate instead of Service ❌
-    const { rankedTierID, divisionLvl, marks } = rangeDto;
-    const rankedTier = await this.rankedTierService.findOne(rankedTierID);
-    if (rankedTier.tierType === 'mark' && divisionLvl != 0) {
-      throw new BadRequestException(
-        `Division lvl must be 0 because the rankedTierType is Mark, your  divisionLvl is:${divisionLvl}`
-      );
-    }
-    if (rankedTier.tierType === 'empty' && (divisionLvl != 0 || marks != 0)) {
-      throw new BadRequestException(
-        `Division lvl and/or Marks must be 0 because the rankedTierType is ${rankedTier.tierType}, your divisionLvl is:${divisionLvl} and your marks are: ${marks}`
-      );
-    }
-    if (
-      rankedTier.tierType === 'division' &&
-      this.isOutRange(divisionLvl, 1, 4)
-    ) {
-      throw new BadRequestException(
-        `The range value for division lvl is: 1-4, your division lvl is: ${divisionLvl}`
-      );
-    }
-    if (this.isOutRange(marks, rankedTier.minMarks, rankedTier.maxMarks))
-      throw new BadRequestException(
-        `The range value for mark is: ${rankedTier.minMarks}-${rankedTier.maxMarks}, your mark  is: ${marks}`
-      );
+  private async rankedTierFk(fk: string) {
+    return await this.rankedTierService.findOne(fk);
   }
-  private async checkSeasonProfile(id: string) {
-    const seasonProfile = await this.rankedTierService.findOne(id);
-    if (!seasonProfile)
-      throw new NotFoundException(`seasonProfile of Match ${id} not found`);
+  // CUSTOM fK Encapsulation
+  private async checkSeasonDate(
+    seasonProfileID: string,
+    date: Date,
+    currentUserI: CurrentUserI
+  ) {
+    const seasonProfile = await this.seasonProfileFk(
+      seasonProfileID,
+      currentUserI
+    );
+    await this.seasonProfileService.checkSeasonDate(date, seasonProfile);
   }
-  private isOutRange(value: number, min: number, max: number): boolean {
-    return value < min || value > max;
+  private async checkRange(range: RangeDto) {
+    const { rankedTierID, divisionLvl, marks } = range;
+    const rankedTier = await this.rankedTierFk(rankedTierID);
+    this.rankedTierService.checkRange(divisionLvl, marks, rankedTier);
   }
 }

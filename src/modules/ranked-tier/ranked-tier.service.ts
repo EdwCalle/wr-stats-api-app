@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException
@@ -9,6 +10,7 @@ import { RankedTier } from './schemas/ranked-tier.schema';
 import { Model, Types } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { TierType } from './enums/ranked-tier.enum';
+import { isOutRange } from 'src/utils/validators/data.validator';
 @Injectable()
 export class RankedTierService {
   constructor(
@@ -108,5 +110,26 @@ export class RankedTierService {
     if (rankedTiers[0].matchesfk.length > 0)
       throw new ConflictException(`This rankedTier ${id} is already in use`);
   }
-  //
+  // custm validation injection
+  checkRange(divisionLvl: number, marks: number, rankedTier: RankedTier) {
+    if (rankedTier.tierType === 'mark' && divisionLvl != 0) {
+      throw new BadRequestException(
+        `Division lvl must be 0 because the rankedTierType is Mark, your  divisionLvl is:${divisionLvl}`
+      );
+    }
+    if (rankedTier.tierType === 'empty' && (divisionLvl != 0 || marks != 0)) {
+      throw new BadRequestException(
+        `Division lvl and/or Marks must be 0 because the rankedTierType is ${rankedTier.tierType}, your divisionLvl is:${divisionLvl} and your marks are: ${marks}`
+      );
+    }
+    if (rankedTier.tierType === 'division' && isOutRange(divisionLvl, 1, 4)) {
+      throw new BadRequestException(
+        `The range value for division lvl is: 1-4, your division lvl is: ${divisionLvl}`
+      );
+    }
+    if (isOutRange(marks, rankedTier.minMarks, rankedTier.maxMarks))
+      throw new BadRequestException(
+        `The range value for mark is: ${rankedTier.minMarks}-${rankedTier.maxMarks}, your mark  is: ${marks}`
+      );
+  }
 }

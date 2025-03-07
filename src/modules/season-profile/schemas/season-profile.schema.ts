@@ -1,19 +1,20 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Types } from 'mongoose';
 
+export type SeasonProfileDocument = SeasonProfile & Document;
 @Schema({ timestamps: true })
 export class SeasonProfile {
+  // season: Season;
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'seasons',
-    set: (v: string) => new Types.ObjectId(v)
+    ref: 'Season'
   })
   seasonID: Types.ObjectId;
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'users',
+    ref: 'User',
     set: (v: string) => new Types.ObjectId(v)
   })
   userID: Types.ObjectId;

@@ -8,7 +8,10 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CreateSeasonProfileDto } from './dto/create-season-profile.dto';
 import { UpdateSeasonProfileDto } from './dto/update-season-profile.dto';
-import { SeasonProfile } from './schemas/season-profile.schema';
+import {
+  SeasonProfile,
+  SeasonProfileDocument
+} from './schemas/season-profile.schema';
 import { UsersService } from '../users/users.service';
 import { SeasonsService } from '../seasons/seasons.service';
 import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
@@ -18,7 +21,7 @@ import { Role } from 'src/utils/enums/role.enum';
 export class SeasonProfileService {
   constructor(
     @InjectModel(SeasonProfile.name)
-    private readonly seasonProfileModel: Model<SeasonProfile>,
+    private readonly seasonProfileModel: Model<SeasonProfileDocument>,
     private readonly usersService: UsersService,
     private readonly seasonsService: SeasonsService
   ) {}
@@ -35,7 +38,9 @@ export class SeasonProfileService {
     await this.checkOwnership(userID, currentUserID);
     await this.checkSeason(seasonID);
     try {
-      return await this.seasonProfileModel.create(createSeasonProfileDto);
+      const model = new this.seasonProfileModel(createSeasonProfileDto);
+      console.log(' am model', model);
+      return await this.seasonProfileModel.create(model);
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000)
@@ -135,5 +140,11 @@ export class SeasonProfileService {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     if (seasonProfile.matches)
       throw new ConflictException('SeasonProfile already in use');
+  }
+  //TO DO
+  // add fk setup ❌
+  async checkSeasonDate(date: Date, seasonProfile: SeasonProfile) {
+    const { seasonID } = seasonProfile;
+    await this.seasonsService.checkRangeDate(date, seasonID.toString());
   }
 }
