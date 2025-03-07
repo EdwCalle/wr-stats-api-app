@@ -3,6 +3,7 @@ import { Role } from '../../../utils/enums/role.enum';
 import { Roles } from './roles.decorator';
 import { RolesGuard } from '../guard/roles.guard';
 import { AuthGuard } from '../guard/auth.guard';
+import { ApiBearerAuth } from '@nestjs/swagger';
 /**
  * A decorator that combines the `Roles` decorator, `AuthGuard`, and `RolesGuard`.
  * It first sets the roles using the `Roles` decorator, then applies the `AuthGuard` to ensure authentication,
@@ -19,5 +20,11 @@ import { AuthGuard } from '../guard/auth.guard';
  * ```
  */
 export function Auth(...role: Role[]) {
-  return applyDecorators(Roles(...role), UseGuards(AuthGuard, RolesGuard));
+  //TO D0
+  //for swagger: we set ApiBearerAuth here when resourcce auth is needed ⚠️
+  return applyDecorators(
+    ApiBearerAuth(),
+    Roles(...role),
+    UseGuards(AuthGuard, RolesGuard)
+  );
 }
