@@ -32,4 +32,4 @@ SeasonProfileSchema.virtual('matches', {
   justOne: true
 });
 SeasonProfileSchema.set('toObject', { virtuals: true });
-SeasonProfileSchema.set('toJSON', { virtuals: true });
+// SeasonProfileSchema.set('toJSON', { virtuals: true });

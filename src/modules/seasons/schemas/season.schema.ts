@@ -17,4 +17,4 @@ SeasonSchema.virtual('seasonProfile', {
   justOne: true
 });
 SeasonSchema.set('toObject', { virtuals: true });
-SeasonSchema.set('toJSON', { virtuals: true });
+//SeasonSchema.set('toJSON', { virtuals: true });

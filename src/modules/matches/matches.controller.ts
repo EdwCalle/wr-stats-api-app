@@ -36,7 +36,7 @@ export class MatchesController {
   @Get()
   @UseGuards(AuthGuard)
   async findAll(@CurrentUser() currentUserI: CurrentUserI) {
-    return await this.matchesService.findAll(currentUserI);
+    return await this.matchesService.findAllComplete(currentUserI);
   }
 
   @Get(':id')

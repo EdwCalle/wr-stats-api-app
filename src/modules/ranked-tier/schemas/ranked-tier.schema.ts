@@ -41,4 +41,4 @@ RankedTierSchema.virtual('matches', {
   justOne: true
 });
 RankedTierSchema.set('toObject', { virtuals: true });
-RankedTierSchema.set('toJSON', { virtuals: true });
+// RankedTierSchema.set('toJSON', { virtuals: true });

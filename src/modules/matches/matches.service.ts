@@ -46,6 +46,33 @@ export class MatchesService {
     }
   }
 
+  async findAllComplete(currentUserI: CurrentUserI) {
+    if (currentUserI.role === Role.ADMIN) {
+      return this.matchModel
+        .find()
+        .populate({
+          path: 'seasonProfileID',
+          populate: {
+            path: 'seasonID'
+          }
+        })
+        .populate('range.rankedTierID');
+    }
+    const seasonProfiles =
+      await this.seasonProfileService.findAll(currentUserI);
+
+    const seasonProfilesID = seasonProfiles.map((sp) => sp._id);
+    return this.matchModel
+      .find({ seasonProfileID: { $in: seasonProfilesID } })
+      .populate({
+        path: 'seasonProfileID',
+        populate: {
+          path: 'seasonID'
+        }
+      })
+      .populate('range.rankedTierID');
+  }
+
   async findAll(currentUserI: CurrentUserI) {
     if (currentUserI.role === Role.ADMIN) {
       return this.matchModel.find();
