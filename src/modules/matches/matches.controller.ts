@@ -20,6 +20,8 @@ import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
 import { Auth } from '../auth/decorators/auth.decorator';
 import { Role } from 'src/utils/enums/role.enum';
 import { MatchQueryDTO } from './dto/match-query.dto';
+import { PaginationMatchDto } from './dto/pagination-match.dto';
+import { FiltersMatchDto } from './dto/filters-match.dto';
 @Auth(Role.ADMIN, Role.USER)
 @Controller('matches')
 export class MatchesController {
@@ -35,8 +37,16 @@ export class MatchesController {
 
   @Get()
   @UseGuards(AuthGuard)
-  async findAll(@CurrentUser() currentUserI: CurrentUserI) {
-    return await this.matchesService.findAllComplete(currentUserI);
+  async findAll(
+    @CurrentUser() currentUserI: CurrentUserI,
+    @Query() paginationMatchDto: PaginationMatchDto,
+    @Query() filtersMatchDto: FiltersMatchDto
+  ) {
+    return await this.matchesService.findAllComplete(
+      currentUserI,
+      paginationMatchDto,
+      filtersMatchDto
+    );
   }
 
   @Get(':id')

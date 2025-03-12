@@ -14,6 +14,8 @@ import { Role } from 'src/utils/enums/role.enum';
 import { SeasonProfileService } from '../season-profile/season-profile.service';
 import { MatchQueryDTO } from './dto/match-query.dto';
 import { MatchPopulate } from './populates/match.populate';
+import { PaginationMatchDto } from './dto/pagination-match.dto';
+import { FiltersMatchDto } from './dto/filters-match.dto';
 
 @Injectable()
 export class MatchesService {
@@ -47,7 +49,16 @@ export class MatchesService {
     }
   }
 
-  async findAllComplete(currentUserI: CurrentUserI) {
+  async findAllComplete(
+    currentUserI: CurrentUserI,
+    paginationMatchDto: PaginationMatchDto,
+    filtersMatchDto: FiltersMatchDto
+  ) {
+    // TO DO
+    // send total pages or results to client ❌
+
+    const limit = paginationMatchDto.limit;
+    const skip = (paginationMatchDto.page - 1) * limit;
     if (currentUserI.role === Role.ADMIN) {
       return this.matchModel
         .find()
@@ -66,8 +77,11 @@ export class MatchesService {
     const seasonProfilesID = seasonProfiles.map((sp) => sp._id);
     return await this.matchModel
       .find({ seasonProfileID: { $in: seasonProfilesID } })
+      .where(filtersMatchDto)
       .populate(MatchPopulate.seasonProfile)
-      .populate(MatchPopulate.rankedTier);
+      .populate(MatchPopulate.rankedTier)
+      .skip(skip)
+      .limit(limit);
   }
 
   async findAll(currentUserI: CurrentUserI) {
