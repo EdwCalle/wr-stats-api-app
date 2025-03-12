@@ -13,6 +13,7 @@ import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
 import { Role } from 'src/utils/enums/role.enum';
 import { SeasonProfileService } from '../season-profile/season-profile.service';
 import { MatchQueryDTO } from './dto/match-query.dto';
+import { MatchPopulate } from './populates/match.populate';
 
 @Injectable()
 export class MatchesService {
@@ -56,21 +57,17 @@ export class MatchesService {
             path: 'seasonID'
           }
         })
-        .populate('range.rankedTierID');
+        .populate(MatchPopulate.seasonProfile)
+        .populate(MatchPopulate.rankedTier);
     }
     const seasonProfiles =
       await this.seasonProfileService.findAll(currentUserI);
 
     const seasonProfilesID = seasonProfiles.map((sp) => sp._id);
-    return this.matchModel
+    return await this.matchModel
       .find({ seasonProfileID: { $in: seasonProfilesID } })
-      .populate({
-        path: 'seasonProfileID',
-        populate: {
-          path: 'seasonID'
-        }
-      })
-      .populate('range.rankedTierID');
+      .populate(MatchPopulate.seasonProfile)
+      .populate(MatchPopulate.rankedTier);
   }
 
   async findAll(currentUserI: CurrentUserI) {
