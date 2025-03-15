@@ -81,7 +81,8 @@ export class MatchesService {
       .populate(MatchPopulate.seasonProfile)
       .populate(MatchPopulate.rankedTier)
       .skip(skip)
-      .limit(limit);
+      .limit(limit)
+      .sort({ date: 1 });
   }
 
   async findAll(currentUserI: CurrentUserI) {
