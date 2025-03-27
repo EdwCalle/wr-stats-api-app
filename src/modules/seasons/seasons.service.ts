@@ -24,7 +24,7 @@ export class SeasonsService {
   }
 
   async findAll() {
-    return await this.seasonModel.find();
+    return await this.seasonModel.find().sort({ startDate: -1 });
   }
 
   async findOne(id: string) {
