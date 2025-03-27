@@ -8,7 +8,8 @@ export class SeasonProfile {
   @Prop({
     required: true,
     type: Types.ObjectId,
-    ref: 'Season'
+    ref: 'Season',
+    set: (v: string) => new Types.ObjectId(v)
   })
   seasonID: Types.ObjectId;
   @Prop({
