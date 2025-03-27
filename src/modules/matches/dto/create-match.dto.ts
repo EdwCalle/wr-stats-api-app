@@ -30,7 +30,8 @@ export class CreateMatchDto {
   @Type(() => Date)
   @Transform(({ value }: { value: string | number | Date }) => {
     const date = new Date(value);
-    date.setUTCHours(0);
+    date.setHours(0, 0, 0, 0);
+    date.setUTCHours(0, 0, 0, 0);
     return date;
   })
   date: Date;
