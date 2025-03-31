@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -33,14 +34,22 @@ export class SeasonProfileService {
     //1. checkUser ✅
     //2. checkSeason ✅
     //3. disable 'any' conflict in errors ❌
-    const { userID, seasonID } = createSeasonProfileDto;
-    await this.checkUserFK(userID);
-    await this.checkOwnership(userID, currentUserID);
-    await this.checkSeasonFK(seasonID);
+    //4.vic and defats must be 0 and 0 ❌
     try {
-      const model = new this.seasonProfileModel(createSeasonProfileDto);
-      console.log(' am model', model);
-      return await this.seasonProfileModel.create(model);
+      const { role, uid } = currentUserID;
+      const { userID, seasonID } = createSeasonProfileDto;
+
+      const targetUserID = role === Role.ADMIN ? userID : uid;
+      if (!targetUserID) {
+        throw new BadRequestException('User ID is required');
+      }
+      await this.checkUserFK(targetUserID);
+      await this.checkSeasonFK(seasonID);
+      // createSeasonProfileDto.userID = targetUserID;
+      return this.seasonProfileModel.create({
+        ...createSeasonProfileDto,
+        userID: targetUserID
+      });
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code === 11000)
@@ -55,9 +64,11 @@ export class SeasonProfileService {
     if (currentUserI.role === Role.ADMIN) {
       return await this.seasonProfileModel.find();
     }
-    return await this.seasonProfileModel.find({
-      userID: new Types.ObjectId(currentUserI.uid)
-    });
+    return await this.seasonProfileModel
+      .find({
+        userID: new Types.ObjectId(currentUserI.uid)
+      })
+      .populate('seasonID');
   }
 
   async findOne(id: string, currentUserID: CurrentUserI) {
