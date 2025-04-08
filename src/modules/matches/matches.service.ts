@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException
@@ -131,7 +132,8 @@ export class MatchesService {
 
     console.log('from update query dto: ', matchQueryDTO);
     const { date } = matchQueryDTO;
-    await this.findOneByDate(id, date, currentUserI);
+    const foundMatch = await this.findOneByDate(id, date, currentUserI);
+
     if (updateMatchDto.range) await this.checkRange(updateMatchDto.range);
     if (updateMatchDto.seasonProfileID)
       await this.checkSeasonDate(
@@ -139,6 +141,11 @@ export class MatchesService {
         date,
         currentUserI
       );
+
+    const victories = updateMatchDto.victories ?? foundMatch.victories;
+    const defeats = updateMatchDto.defeats ?? foundMatch.defeats;
+    this.checkDiffZero(victories, defeats);
+
     return await this.matchModel.findByIdAndUpdate(id, updateMatchDto);
   }
 
@@ -177,5 +184,11 @@ export class MatchesService {
     const { rankedTierID, divisionLvl, marks } = range;
     const rankedTier = await this.rankedTierFk(rankedTierID);
     this.rankedTierService.checkRange(divisionLvl, marks, rankedTier);
+  }
+  private checkDiffZero(victories: number, defeats: number) {
+    if (victories === 0 && defeats === 0)
+      throw new BadRequestException(
+        'victories and defeats must be different of 0'
+      );
   }
 }
