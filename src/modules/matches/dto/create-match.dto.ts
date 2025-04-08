@@ -1,3 +1,4 @@
+import { ConflictException } from '@nestjs/common';
 import { Transform, Type } from 'class-transformer';
 import {
   IsString,
@@ -30,7 +31,15 @@ export class CreateMatchDto {
   @Type(() => Date)
   @Transform(({ value }: { value: string | number | Date }) => {
     const date = new Date(value);
-    date.setHours(0, 0, 0, 0);
+    const time =
+      date.getHours() +
+      date.getMinutes() +
+      date.getSeconds() +
+      date.getMilliseconds();
+    if (time !== 0)
+      throw new ConflictException(
+        'date must be start at 00:00 am in your localtime'
+      );
     date.setUTCHours(0, 0, 0, 0);
     return date;
   })
