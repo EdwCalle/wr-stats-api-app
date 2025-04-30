@@ -14,9 +14,10 @@ export class AuthService {
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService
   ) {}
-  async login({ email, password }: LoginDto) {
-    const user = await this.usersService.findByEmailwithPassword(email);
-    if (!user) throw new UnauthorizedException('email not found');
+  async login({ credential, password }: LoginDto) {
+    const user =
+      await this.usersService.findByCredentialwithPassword(credential);
+    if (!user) throw new UnauthorizedException('email/username not found');
     if (!(await bcriptjs.compare(password, user.password)))
       throw new UnauthorizedException('password is not correct');
     const payload = {
@@ -32,7 +33,7 @@ export class AuthService {
   }
   async register({ username, email, password }: RegisterDto) {
     const user = await this.usersService.findOneByEmail(email);
-    if (user) throw new BadRequestException('User already exists');
+    if (user) throw new BadRequestException('User/email already used');
     const newUser = await this.usersService.create({
       username,
       email,

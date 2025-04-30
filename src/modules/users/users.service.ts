@@ -22,10 +22,10 @@ export class UsersService {
     const user = await this.userModel.findById(id);
     return user;
   }
-  async findByEmailwithPassword(email: string) {
-    const user = await this.userModel
-      .findOne({ email: email })
-      .select('+password');
+  async findByCredentialwithPassword(credential: string) {
+    const isEmail = credential.includes('@');
+    const query = isEmail ? { email: credential } : { username: credential };
+    const user = await this.userModel.findOne(query).select('+password');
     return user;
   }
 
