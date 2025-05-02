@@ -66,7 +66,7 @@ export class SeasonsService {
   private checkDate(startDate: Date, finishDate: Date | null) {
     if (finishDate && startDate.getTime() >= finishDate.getTime())
       throw new BadRequestException(
-        `finish date ${finishDate.toISOString()} must be greater then finsih date ${startDate.toISOString()}`
+        `finish date ${finishDate.toISOString()} must be greater then finish date ${startDate.toISOString()}`
       );
   }
   // constraints fk

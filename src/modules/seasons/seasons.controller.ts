@@ -17,7 +17,7 @@ import { Role } from 'src/utils/enums/role.enum';
 @Controller('seasons')
 export class SeasonsController {
   constructor(private readonly seasonsService: SeasonsService) {}
-
+  @Auth(Role.ADMIN)
   @Post()
   async create(@Body() createSeasonDto: CreateSeasonDto) {
     return await this.seasonsService.create(createSeasonDto);
@@ -32,7 +32,7 @@ export class SeasonsController {
   async findOne(@Param('id', ParseObjectIdPipe) id: string) {
     return await this.seasonsService.findOne(id);
   }
-
+  @Auth(Role.ADMIN)
   @Patch(':id')
   async update(
     @Param('id', ParseObjectIdPipe) id: string,
@@ -40,7 +40,7 @@ export class SeasonsController {
   ) {
     return await this.seasonsService.update(id, updateSeasonDto);
   }
-
+  @Auth(Role.ADMIN)
   @Delete(':id')
   async remove(@Param('id', ParseObjectIdPipe) id: string) {
     return await this.seasonsService.remove(id);
