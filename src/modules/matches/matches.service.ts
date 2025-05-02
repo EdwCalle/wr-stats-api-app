@@ -13,10 +13,12 @@ import { RankedTierService } from 'src/modules/ranked-tier/ranked-tier.service';
 import { CurrentUserI } from 'src/utils/interfaces/current-user.interface';
 import { Role } from 'src/utils/enums/role.enum';
 import { SeasonProfileService } from '../season-profile/season-profile.service';
-import { MatchQueryDTO } from './dto/match-query.dto';
+import { FilterDateMatchDTO } from './dto/filter-date-match.dto';
 import { MatchPopulate } from './populates/match.populate';
 import { PaginationMatchDto } from './dto/pagination-match.dto';
 import { FiltersMatchDto } from './dto/filters-match.dto';
+import { isSameDate } from 'src/utils/validators/data.validator';
+import { NormalizeDate } from 'src/utils/transforms/date.transform';
 
 @Injectable()
 export class MatchesService {
@@ -26,17 +28,25 @@ export class MatchesService {
     private readonly seasonProfileService: SeasonProfileService
   ) {}
 
-  async create(createMatchDto: CreateMatchDto, currentUserI: CurrentUserI) {
+  async create(
+    createMatchDto: CreateMatchDto,
+    filterDateMatchDTO: FilterDateMatchDTO,
+    currentUserI: CurrentUserI
+  ) {
     try {
       // TO DO
+      //check unique date ✅
       // check seasonProfile FK ✅
       //  check seasonDate✅
       // check rankedTier FK ✅
       // check range ✅
-      const { seasonProfileID, range, date } = createMatchDto;
+      const { seasonProfileID, range, victories, defeats } = createMatchDto;
+      const { date } = filterDateMatchDTO;
+      await this.checkUniqueDate(filterDateMatchDTO, currentUserI);
       await this.checkSeasonDate(seasonProfileID, date, currentUserI);
       await this.checkRange(range);
-      return await this.matchModel.create(createMatchDto);
+      this.checkDiffZero(victories, defeats);
+      return await this.matchModel.create({ ...createMatchDto, date });
     } catch (error) {
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
       if (error.code == 11000)
@@ -105,35 +115,45 @@ export class MatchesService {
     );
     return match;
   }
-  async findOneByDate(_id: string, date: Date, currentUserI: CurrentUserI) {
-    const match = await this.matchModel.findOne({ _id, date });
-    if (!match)
-      throw new NotFoundException(
-        `Match ${_id} not found with date ${date.toISOString()}`
-      );
-    await this.seasonProfileService.findOne(
-      match.seasonProfileID,
-      currentUserI
-    );
-    return match;
+  async findOneByDate(
+    filterDateMatchDTO: FilterDateMatchDTO,
+    currentUserI: CurrentUserI
+  ) {
+    const { date, timezone } = filterDateMatchDTO;
+    const targetDate = NormalizeDate(date, timezone);
+    const matches = await this.findAll(currentUserI);
+
+    for (const match of matches) {
+      const matchDate = NormalizeDate(match.date, timezone);
+      if (isSameDate(targetDate, matchDate)) {
+        await this.seasonProfileService.findOne(
+          match.seasonProfileID,
+          currentUserI
+        );
+        return match;
+      }
+    }
   }
 
   async update(
     id: string,
-    matchQueryDTO: MatchQueryDTO,
+    filterDateMatchDTO: FilterDateMatchDTO,
     updateMatchDto: UpdateMatchDto,
     currentUserI: CurrentUserI
   ) {
     //TO DO
+    //1. check unique date ✅
     //1. check match and check same date ✅
     //2. check Range and check fk sesonProfileID ✅
     //3. check seasonDate, and check rankedTierID ✅
     //4. optimze ownership from : findOnebyDate and checkSeasonDate ❌
 
-    console.log('from update query dto: ', matchQueryDTO);
-    const { date } = matchQueryDTO;
-    const foundMatch = await this.findOneByDate(id, date, currentUserI);
-
+    const { date } = filterDateMatchDTO;
+    const foundMatch = await this.findBySameDateID(
+      id,
+      filterDateMatchDTO,
+      currentUserI
+    );
     if (updateMatchDto.range) await this.checkRange(updateMatchDto.range);
     if (updateMatchDto.seasonProfileID)
       await this.checkSeasonDate(
@@ -151,16 +171,47 @@ export class MatchesService {
 
   async remove(
     id: string,
-    matchQueryDTO: MatchQueryDTO,
+    filterDateMatchDTO: FilterDateMatchDTO,
     currentUserI: CurrentUserI
   ) {
     //TO DO
     //1. check match and check same date ✅
-    await this.findOneByDate(id, matchQueryDTO.date, currentUserI);
+    await this.findBySameDateID(id, filterDateMatchDTO, currentUserI);
     return await this.matchModel.findByIdAndDelete(id);
   }
 
   // VALIDATIONS
+  // local validator
+  private checkDiffZero(victories: number, defeats: number) {
+    if (victories === 0 && defeats === 0)
+      throw new BadRequestException(
+        'victories and defeats must be different of 0'
+      );
+  }
+  private async checkUniqueDate(
+    filterDateMatchDTO: FilterDateMatchDTO,
+    currentUserI: CurrentUserI
+  ) {
+    const match = await this.findOneByDate(filterDateMatchDTO, currentUserI);
+    if (match) throw new BadRequestException('date already in use');
+  }
+  private async findBySameDateID(
+    id: string,
+    filterDateMatchDTO: FilterDateMatchDTO,
+    currentUserI: CurrentUserI
+  ) {
+    const match = await this.findOneByDate(filterDateMatchDTO, currentUserI);
+    const { date } = filterDateMatchDTO;
+    if (!match)
+      throw new BadRequestException(
+        `the match with this date ${date.toISOString()} does not exist`
+      );
+    if (match.id !== id)
+      throw new BadRequestException(
+        `this date ${date.toISOString()} does not belong to this id ${id}`
+      );
+    return match;
+  }
   //FK (IN sql db this is not nesesary)
   private async seasonProfileFk(fk: string, currentUserI: CurrentUserI) {
     return await this.seasonProfileService.findOne(fk, currentUserI);
@@ -184,11 +235,5 @@ export class MatchesService {
     const { rankedTierID, divisionLvl, marks } = range;
     const rankedTier = await this.rankedTierFk(rankedTierID);
     this.rankedTierService.checkRange(divisionLvl, marks, rankedTier);
-  }
-  private checkDiffZero(victories: number, defeats: number) {
-    if (victories === 0 && defeats === 0)
-      throw new BadRequestException(
-        'victories and defeats must be different of 0'
-      );
   }
 }
