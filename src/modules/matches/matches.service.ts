@@ -17,7 +17,10 @@ import { FilterDateMatchDTO } from './dto/filter-date-match.dto';
 import { MatchPopulate } from './populates/match.populate';
 import { PaginationMatchDto } from './dto/pagination-match.dto';
 import { FiltersMatchDto } from './dto/filters-match.dto';
-import { isSameDate } from 'src/utils/validators/data.validator';
+import {
+  isSameDate,
+  isSameTimeZone
+} from 'src/utils/validators/data.validator';
 import { NormalizeDate } from 'src/utils/transforms/date.transform';
 
 @Injectable()
@@ -122,6 +125,12 @@ export class MatchesService {
     const { date, timezone } = filterDateMatchDTO;
     const targetDate = NormalizeDate(date, timezone);
     const matches = await this.findAll(currentUserI);
+
+    if (!isSameTimeZone(currentUserI.timezone, timezone))
+      throw new BadRequestException(
+        `Account Timezone '${currentUserI.timezone}' doesnt match with your local timezone '${timezone}'`
+      );
+    // console.log(currentUserI.timezone, timezone);
 
     for (const match of matches) {
       const matchDate = NormalizeDate(match.date, timezone);

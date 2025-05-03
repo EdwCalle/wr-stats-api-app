@@ -13,3 +13,10 @@ export function isSameDate(
     date1.day === date2.day
   );
 }
+export function isSameTimeZone(timezoneA: string, timezoneB: string) {
+  const nowA = DateTime.now().setZone(timezoneA);
+  const nowB = DateTime.now().setZone(timezoneB);
+
+  const offsetDifference = nowA.offset - nowB.offset;
+  return offsetDifference === 0;
+}

@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, IsTimeZone } from 'class-validator';
 
 export class CreateUserDto {
   @IsNotEmpty()
@@ -14,4 +14,7 @@ export class CreateUserDto {
   // @IsString()
   // @IsOptional()
   // role?: string;
+  @IsNotEmpty()
+  @IsTimeZone()
+  timezone: string;
 }

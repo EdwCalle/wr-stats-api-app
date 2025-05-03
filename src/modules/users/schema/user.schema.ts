@@ -17,6 +17,9 @@ export class User {
 
   @Prop({ required: true, default: Role.USER, enum: Role })
   role: Role;
+
+  @Prop({ required: true })
+  timezone: string;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

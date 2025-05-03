@@ -24,20 +24,22 @@ export class AuthService {
       uid: user._id,
       username: user.username,
       email: user.email,
-      role: user.role
+      role: user.role,
+      timezone: user.timezone
     };
     return {
       access_token: await this.jwtService.signAsync(payload),
       email: user.email
     };
   }
-  async register({ username, email, password }: RegisterDto) {
+  async register({ username, email, password, timezone }: RegisterDto) {
     const user = await this.usersService.findOneByEmail(email);
     if (user) throw new BadRequestException('User/email already used');
     const newUser = await this.usersService.create({
       username,
       email,
-      password: await bcriptjs.hash(password, 10)
+      password: await bcriptjs.hash(password, 10),
+      timezone
     });
     return { username, email, id: newUser._id };
   }

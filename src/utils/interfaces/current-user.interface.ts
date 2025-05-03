@@ -5,4 +5,5 @@ export interface CurrentUserI {
   username: string;
   email: string;
   role: Role;
+  timezone: string;
 }

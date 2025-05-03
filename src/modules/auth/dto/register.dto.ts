@@ -1,8 +1,10 @@
 import { Transform } from 'class-transformer';
 import {
   IsEmail,
+  IsNotEmpty,
   IsString,
   IsStrongPassword,
+  IsTimeZone,
   MinLength
 } from 'class-validator';
 
@@ -25,4 +27,7 @@ export class RegisterDto {
     minSymbols: 1
   })
   password: string;
+  @IsNotEmpty()
+  @IsTimeZone()
+  timezone: string;
 }
