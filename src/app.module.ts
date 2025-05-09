@@ -7,12 +7,27 @@ import { SeasonsModule } from './modules/seasons/seasons.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import * as Joi from 'joi';
 @Module({
   imports: [
-    ConfigModule.forRoot({ envFilePath: '.env' }),
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+      isGlobal: true,
+      expandVariables: true,
+      validationSchema: Joi.object({
+        NODE_ENV: Joi.string()
+          .valid('development', 'production', 'test', 'provision')
+          .default('development'),
+        PORT: Joi.number().default(3000),
+        MONGO_DB_URI: Joi.string().required(),
+        JWT_SECRET: Joi.string().required()
+        // ... otras variables
+      })
+    }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
+        //
         uri: configService.get<string>('MONGO_DB_URI')
       }),
       inject: [ConfigService]

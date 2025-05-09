@@ -50,7 +50,9 @@ export class SeasonsService {
         : oldSeason.finishDate;
 
     this.checkDate(startDate, finishDate);
-    await this.onConstraintKey(id);
+    //TO DO
+    //1. check updateConstraint?, due to finish date sometimes is  unknown, user can edit all params and afect app behavior  ❌
+    // await this.onConstraintKey(id);
     return await this.seasonModel.findByIdAndUpdate(id, updateSeasonDto);
   }
 
