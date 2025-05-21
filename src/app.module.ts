@@ -11,17 +11,15 @@ import * as Joi from 'joi';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
+      envFilePath: `.env.${process.env.NODE_ENV || 'development'}`,
       isGlobal: true,
       expandVariables: true,
       validationSchema: Joi.object({
-        NODE_ENV: Joi.string()
-          .valid('development', 'production', 'test', 'provision')
-          .default('development'),
+        NODE_ENV: Joi.string().valid('development', 'production').required(),
         PORT: Joi.number().default(3000),
         MONGO_DB_URI: Joi.string().required(),
-        JWT_SECRET: Joi.string().required()
-        // ... otras variables
+        JWT_SECRET: Joi.string().required(),
+        ALLOWED_ORIGIN_URI: Joi.string().required()
       })
     }),
     MongooseModule.forRootAsync({

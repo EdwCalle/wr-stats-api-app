@@ -27,12 +27,17 @@ async function bootstrap() {
   SwaggerModule.setup('docs', app, documentFactory);
 
   const configService = app.get(ConfigService);
-  const allowedOrigin = configService
-    .get<string>('ALLOWED_ORIGIN_URI')
-    ?.split(';');
-  app.enableCors({
-    origin: allowedOrigin
-  });
+  const nodeEnv = configService.get<string>('NODE_ENV');
+
+  if (nodeEnv === 'development') app.enableCors();
+  if (nodeEnv === 'production') {
+    const allowedOrigin = configService
+      .get<string>('ALLOWED_ORIGIN_URI')
+      ?.split(';');
+    app.enableCors({
+      origin: allowedOrigin
+    });
+  }
 
   await app.listen(process.env.PORT ?? 3000);
 }
