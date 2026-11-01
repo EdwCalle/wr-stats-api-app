@@ -71,6 +71,10 @@ export class MatchesService {
     // TO DO
     // send total pages or results to client ❌
 
+    const cleanFilter = Object.fromEntries(
+      Object.entries(filtersMatchDto).filter(([, value]) => value !== undefined)
+    );
+
     const limit = paginationMatchDto.limit;
     const skip = (paginationMatchDto.page - 1) * limit;
     if (currentUserI.role === Role.ADMIN) {
@@ -91,7 +95,7 @@ export class MatchesService {
     const seasonProfilesID = seasonProfiles.map((sp) => sp._id);
     return await this.matchModel
       .find({ seasonProfileID: { $in: seasonProfilesID } })
-      .where(filtersMatchDto)
+      .where(cleanFilter)
       .populate(MatchPopulate.seasonProfile)
       .populate(MatchPopulate.rankedTier)
       .skip(skip)
