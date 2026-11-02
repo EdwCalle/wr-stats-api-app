@@ -127,7 +127,7 @@ Use the Swagger documentation to explore and test the available API endpoints.
 
 This API is designed to work with the **WR Stats** frontend application.
 
-**Frontend Repository:** [WR Stats Web Application](<frontend-repository-url>)
+**Frontend Repository:** [WR Stats Web]((https://github.com/EdwCalle/wr-stats-web-app/)
 
 Once the API is running and the database has been initialized, follow the instructions in the frontend repository to complete the setup.
 
