@@ -33,7 +33,7 @@ export class RankedTierService {
   async findOne(id: string): Promise<RankedTier> {
     const rankedTier = await this.rankedTierModel.findById(id);
     if (!rankedTier)
-      throw new NotFoundException(`RankedTier with ID '${id}' not found`);
+      throw new NotFoundException(`No RankedTier with ID '${id}' found`);
     return rankedTier;
   }
 

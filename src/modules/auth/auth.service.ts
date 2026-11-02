@@ -17,7 +17,7 @@ export class AuthService {
   async login({ credential, password }: LoginDto) {
     const user =
       await this.usersService.findByCredentialwithPassword(credential);
-    if (!user) throw new UnauthorizedException('email/username not found');
+    if (!user) throw new UnauthorizedException('no email/username found');
     if (!(await bcriptjs.compare(password, user.password)))
       throw new UnauthorizedException('password is not correct');
     const payload = {

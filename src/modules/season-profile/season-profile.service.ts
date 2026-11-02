@@ -118,11 +118,11 @@ export class SeasonProfileService {
     const user = await this.usersService.findOne(currentUserI.uid);
     if (!user)
       throw new NotFoundException(
-        `Current User with id '${currentUserI.uid}' not found`
+        `no Current User found with id '${currentUserI.uid}`
       );
     if (currentUserI.role === Role.USER && userID !== currentUserI.uid) {
       throw new UnauthorizedException(
-        'Season Profile Resource not allowed for this user'
+        'Season Profile Resource is not allowed for this user'
       );
     }
   }
@@ -133,7 +133,7 @@ export class SeasonProfileService {
     const userFK = await this.usersService.findOne(userID);
     if (!userFK)
       throw new NotFoundException(
-        `User from seasonProfile with id '${userID}' not found`
+        `No User from seasonProfile found with id '${userID}'`
       );
     // await this.checkOwnership(userID, currentUserID);
   }

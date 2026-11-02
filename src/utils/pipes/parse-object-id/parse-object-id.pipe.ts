@@ -7,7 +7,7 @@ export class ParseObjectIdPipe implements PipeTransform {
   transform(value: string): string {
     if (!Types.ObjectId.isValid(value)) {
       throw new BadRequestException(
-        `ParseObjectID error: Invalid ID format: ${value}`
+        `ParseObjectID error, Invalid ID format: ${value}`
       );
     }
     // return new Types.ObjectId(value);

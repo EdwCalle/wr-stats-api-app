@@ -29,8 +29,7 @@ export class SeasonsService {
 
   async findOne(id: string) {
     const season = await this.seasonModel.findById(id);
-    if (!season)
-      throw new NotFoundException(`Season with id '${id}' not found`);
+    if (!season) throw new NotFoundException(`No Season found with id '${id}'`);
     return season;
   }
 

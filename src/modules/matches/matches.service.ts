@@ -115,7 +115,7 @@ export class MatchesService {
 
   async findOne(id: string, currentUserI: CurrentUserI) {
     const match = await this.matchModel.findById(id);
-    if (!match) throw new NotFoundException(`Match ${id} not found`);
+    if (!match) throw new NotFoundException(`no Match ${id} found`);
     await this.seasonProfileService.findOne(
       match.seasonProfileID,
       currentUserI
@@ -198,7 +198,7 @@ export class MatchesService {
   private checkDiffZero(victories: number, defeats: number) {
     if (victories === 0 && defeats === 0)
       throw new BadRequestException(
-        'victories and defeats must be different of 0'
+        'victories and defeats be greater than zero'
       );
   }
   private async checkUniqueDate(

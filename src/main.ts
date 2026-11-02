@@ -18,7 +18,7 @@ async function bootstrap() {
   const config = new DocumentBuilder()
     .setTitle('WR Stats API')
     .setDescription(
-      'This WR STATS API is for registering wins and defeats for wildrift players'
+      'The WR Stats API is designed to track wins and losses for Wild Rift players.'
     )
     .setVersion('1.0')
     .addBearerAuth()
