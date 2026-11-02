@@ -1,15 +1,18 @@
 services:
-  postgres:
-    image: postgres:16-alpine
-    container_name: wr-postgres
-    environment:
-      POSTGRES_USER: 'demo'
-      POSTGRES_PASSWORD: 'demo'
-      POSTGRES_DB: wr_stats
+  mongodb:
+    image: mongodb/mongodb-community-server:9.0.4-ubi8-slim
+    container_name: wr-mongodb
     ports:
-      - '5432:5432'
+      - '27017:27017'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - mongodb_data:/data/db
+  mongo-tools:
+    image: mongo:8
+    container_name: wr-mongo-tools
+    profiles:
+      - tools
+    volumes:
+      - ./assets:/assets
 
   api:
     build:
@@ -21,4 +24,4 @@ services:
     env_file:
       - ./.env.development
 volumes:
-  postgres_data:
+  mongodb_data:
