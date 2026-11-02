@@ -1,0 +1,24 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wr-postgres
+    environment:
+      POSTGRES_USER: 'demo'
+      POSTGRES_PASSWORD: 'demo'
+      POSTGRES_DB: wr_stats
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: wr-api
+    ports:
+      - '3000:3000'
+    env_file:
+      - ./.env.development
+volumes:
+  postgres_data:
