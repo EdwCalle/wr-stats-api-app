@@ -13,6 +13,7 @@ services:
       - tools
     volumes:
       - ./assets:/assets
+      - api_vol:/app
 
   api:
     build:
@@ -25,3 +26,4 @@ services:
       - ./.env.development
 volumes:
   mongodb_data:
+  api_vol:
