@@ -1,99 +1,141 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# WR Stats API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+**WR Stats API** is a prototype REST API built with NestJS that serves as the backend for **WR Stats**, a web application designed to help *League of Legends: Wild Rift* players record their daily wins and losses, monitor their performance, and analyze their progress across ranked seasons.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+The API manages player accounts, match records, ranked seasons, and ranked tiers, providing the necessary data and functionality for the WR Stats frontend.
 
-## Description
+## Current Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Player Authentication:** Register and log in players using JWT-based authentication.
+- **Match Management:** Create, read, update, and delete match records.
+- **Season Management:** Manage ranked seasons through CRUD operations.
+- **Ranked Tier Management:** Manage ranked tiers and their associated information.
+- **API Documentation:** Explore available endpoints through Swagger.
 
-## Project setup
+> **Disclaimer:** This application was developed for learning and demonstration purposes only. It is a prototype and may contain bugs, inaccurate data, or unexpected behavior.
 
-```bash
-$ npm install
-```
+## Tech Stack
 
-## Compile and run the project
+- **Backend:** NestJS
+- **Database:** MongoDB
+- **Authentication:** JWT
+- **API Documentation:** Swagger
+- **Containerization:** Docker and Docker Compose
 
-```bash
-# development
-$ npm run start
+## Getting Started with Docker
 
-# watch mode
-$ npm run start:dev
+### Prerequisites
 
-# production mode
-$ npm run start:prod
-```
+Make sure the following tools are installed:
 
-## Run tests
+- [Docker](https://www.docker.com/)
+- [Node.js](https://nodejs.org/) (for local development)
+
+### Installation and Setup
+
+**Important:** Follow the steps in the specified order. The database must be initialized with sample data before starting the API to ensure the application functions correctly.
+
+### 1. Clone the Repository
+
+Clone this repository and navigate to the project directory:
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone <repository-url>
+cd <repository-directory>
 ```
 
-## Deployment
+### 2. Configure Environment Variables
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+Create a `.env.development` file in the project root and add the following variables:
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+```env
+JWT_SECRET=your-secret-key
+MONGO_DB_URI=mongodb://mongodb:27017/wr_stats
+NODE_ENV=development
+```
+
+Replace `your-secret-key` with a secure, randomly generated secret.
+
+Ensure that your Docker Compose configuration loads these environment variables.
+
+### 3. Start MongoDB
+
+Build and start the MongoDB container:
 
 ```bash
-$ npm install -g mau
-$ mau deploy
+docker compose up -d --build mongodb
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+This command starts the database service in detached mode.
 
-## Resources
+### 4. Build the MongoDB Tools Container
 
-Check out a few resources that may come in handy when working with NestJS:
+Build the service containing the MongoDB database utilities:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+docker compose build mongo-tools
+```
 
-## Support
+These utilities are required to import the sample data.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+### 5. Restore the Sample Database
 
-## Stay in touch
+Once MongoDB is running, execute the following command to import the sample data:
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```bash
+docker compose run --rm mongo-tools mongorestore --uri="mongodb://mongodb:27017" --archive=./assets/sample-data.gz --gzip
+```
 
-## License
+This command:
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+- Connects to the MongoDB service.
+- Restores the database from the compressed archive.
+- Removes the temporary tools container after execution.
+
+**Note:** This step is only required during the initial setup, provided the database data is preserved. Ensure the archive file is available at the specified path inside the tools container.
+
+> **Important — Database Initialization Required**
+>
+> The sample database must be successfully restored before starting the API. It contains essential default data, including **ranked seasons and ranked tiers**, which are required for the application to function correctly.
+>
+> **If the database restoration fails, is skipped, or is incomplete, the application will not function as expected.**
+>
+> Make sure the restoration process completes successfully before proceeding to the next step.
+
+### 6. Start the Backend API
+
+After restoring the database, build and start the API:
+
+```bash
+docker compose up -d --build api
+```
+
+The API should now be running and connected to MongoDB.
+
+### 7. Access the API
+
+Once the containers are running, you can access the following endpoints:
+
+| Service | URL |
+|---|---|
+| REST API | http://localhost:3000/api/v1 |
+| Swagger Documentation | http://localhost:3000/docs |
+
+Use the Swagger documentation to explore and test the available API endpoints.
+
+## Frontend Application
+
+This API is designed to work with the **WR Stats** frontend application.
+
+**Frontend Repository:** [WR Stats Web Application](<frontend-repository-url>)
+
+Once the API is running and the database has been initialized, follow the instructions in the frontend repository to complete the setup.
+
+
+## Project Status
+
+WR Stats API is currently a **prototype under development**.
+
+The project was created for educational purposes, focusing on backend development, REST API design, authentication, database management, and Docker-based deployment.
+
+Features, endpoints, and database structures may change as development continues.
